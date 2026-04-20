@@ -3,6 +3,16 @@ import "./LoveLetter.css";
 
 const CORRECT_NAME = "April Grace Buba";
 
+// SALUTATION speed: ~5 seconds for "Mahal," (6 chars including comma)
+// 5000ms / 6 chars ≈ 833ms per char
+const SALUTATION_SPEED = 833;
+
+// Normal paragraph typing speed (slow, flowing feel)
+const PARA_SPEED = 38; // ms per character
+
+// Pause between blocks (ms) — simulates thinking before next paragraph
+const BLOCK_PAUSE = 3000;
+
 const FULL_TEXT = [
   { type: "salutation", text: "Mahal," },
   { type: "para", text: "Maniniwala ka kaya kung aking ihahayag na ang pag-ibig ko sa iyo ay higit pa sa iyong inaakala?" },
@@ -25,11 +35,13 @@ export default function LoveLetter() {
   const [fadeIn, setFadeIn] = useState(false);
   const [letterVisible, setLetterVisible] = useState(false);
 
-  // Typewriter
+  // Typewriter state
   const [visibleBlocks, setVisibleBlocks] = useState([]);
   const [currentBlock, setCurrentBlock] = useState(0);
   const [currentChar, setCurrentChar] = useState(0);
   const [typingDone, setTypingDone] = useState(false);
+  // Track whether we are in the "pause" between blocks
+  const [isPausing, setIsPausing] = useState(false);
 
   // Music
   const audioRef = useRef(null);
@@ -67,13 +79,22 @@ export default function LoveLetter() {
   // ── Typewriter effect ──
   useEffect(() => {
     if (phase !== "letter" || !letterVisible) return;
+
+    // All blocks done
     if (currentBlock >= FULL_TEXT.length) {
       setTypingDone(true);
       return;
     }
+
+    // Currently pausing between blocks — do nothing, wait for pause timer
+    if (isPausing) return;
+
     const block = FULL_TEXT[currentBlock];
+
     if (currentChar < block.text.length) {
-      const speed = block.type === "salutation" ? 80 : 22;
+      // Determine typing speed
+      const speed = block.type === "salutation" ? SALUTATION_SPEED : PARA_SPEED;
+
       const t = setTimeout(() => {
         setVisibleBlocks((prev) => {
           const updated = [...prev];
@@ -88,16 +109,19 @@ export default function LoveLetter() {
         });
         setCurrentChar((c) => c + 1);
       }, speed);
+
       return () => clearTimeout(t);
     } else {
-      // Move to next block after short pause
+      // Block finished — pause before moving to next
+      setIsPausing(true);
       const t = setTimeout(() => {
+        setIsPausing(false);
         setCurrentBlock((b) => b + 1);
         setCurrentChar(0);
-      }, 180);
+      }, BLOCK_PAUSE);
       return () => clearTimeout(t);
     }
-  }, [phase, letterVisible, currentBlock, currentChar]);
+  }, [phase, letterVisible, currentBlock, currentChar, isPausing]);
 
   // ── Music setup ──
   useEffect(() => {
@@ -107,7 +131,7 @@ export default function LoveLetter() {
       const tryPlay = () => {
         audioRef.current.play()
           .then(() => { setMusicPlaying(true); setMusicReady(true); })
-          .catch(() => { setMusicReady(true); }); // blocked by browser, show button
+          .catch(() => { setMusicReady(true); });
       };
       tryPlay();
     }
@@ -182,24 +206,47 @@ export default function LoveLetter() {
           <div className="letter-body">
             {visibleBlocks.map((block, i) => {
               if (!block) return null;
-              if (block.type === "salutation")
-                return <p key={i} className="salutation">{block.display}<span className="cursor">|</span></p>;
-              if (block.type === "closing")
+
+              // Is this the block currently being typed?
+              const isActive = i === currentBlock && !typingDone && !isPausing;
+
+              if (block.type === "salutation") {
+                // Cursor only while salutation is actively typing; removed after
+                const salutationStillTyping = currentBlock === i && !isPausing && !typingDone;
+                return (
+                  <p key={i} className="salutation">
+                    {block.display}
+                    {salutationStillTyping && <span className="cursor">|</span>}
+                  </p>
+                );
+              }
+
+              if (block.type === "closing") {
                 return (
                   <div key={i} className="closing">
-                    <p>{block.display}{i === currentBlock ? <span className="cursor">|</span> : ""}</p>
+                    <p>
+                      {block.display}
+                      {isActive && <span className="cursor">|</span>}
+                    </p>
                   </div>
                 );
-              if (block.type === "signature")
+              }
+
+              if (block.type === "signature") {
                 return (
                   <div key={i} className="closing">
-                    <p className="signature">{block.display}{i === currentBlock ? <span className="cursor">|</span> : ""}</p>
+                    <p className="signature">
+                      {block.display}
+                      {isActive && <span className="cursor">|</span>}
+                    </p>
                   </div>
                 );
+              }
+
               return (
                 <p key={i}>
                   {block.display}
-                  {i === currentBlock && !typingDone ? <span className="cursor">|</span> : ""}
+                  {isActive && <span className="cursor">|</span>}
                 </p>
               );
             })}
