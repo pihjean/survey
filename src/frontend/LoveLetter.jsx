@@ -83,7 +83,7 @@ export default function LoveLetter() {
               Sana ay huwag mong pagdudahan ang nararamdaman ko sa iyo, sapagkat
               ito ay hindi bunga ng panandaliang damdamin lamang kundi isang
               tapat na pinanghahawakan ng aking puso. Hindi ko ito sinimulan
-              nang walang katotohanan, at hindi ko rin ito pinapadalos-dalos nang
+              na walang katotohanan, at hindi ko rin ito pinapadalos-dalos na
               walang lalim.
             </p>
             <p>
