@@ -12,8 +12,6 @@
   --faded-ink: #5a3e28;
   --rose: #c4485a;
   --gold: #b8860b;
-
-  /* Survey palette */
   --sv-bg: #f0f2f5;
   --sv-white: #ffffff;
   --sv-border: #d1d5db;
@@ -29,6 +27,77 @@
 html, body, #root {
   width: 100%;
   min-height: 100%;
+}
+
+/* ════════════════════════════
+   LOADING PAGE
+════════════════════════════ */
+.loading-page {
+  min-height: 100vh;
+  background-color: #1a0e06;
+  background-image:
+    radial-gradient(ellipse at 30% 20%, rgba(139,105,20,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(196,72,90,0.12) 0%, transparent 55%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.loading-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.loading-hearts {
+  display: flex;
+  gap: 14px;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  color: var(--rose);
+}
+
+.lh { animation: heartBeat 1.4s ease-in-out infinite; }
+.lh1 { animation-delay: 0s; }
+.lh2 { animation-delay: 0.2s; }
+.lh3 { animation-delay: 0.4s; }
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50%       { transform: scale(1.35); opacity: 1; }
+}
+
+.loading-text {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: clamp(0.88rem, 3vw, 1.05rem);
+  color: var(--aged);
+  letter-spacing: 0.5px;
+}
+
+.progress-bar-wrap {
+  width: clamp(200px, 60vw, 320px);
+  height: 5px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--rose));
+  border-radius: 99px;
+  transition: width 0.05s linear;
+}
+
+.loading-pct {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+  color: var(--gold);
+  letter-spacing: 2px;
+  opacity: 0.75;
 }
 
 /* ════════════════════════════
@@ -56,9 +125,7 @@ html, body, #root {
   background: var(--sv-white);
   border-radius: 12px;
   padding: clamp(24px, 6vw, 40px) clamp(20px, 5vw, 36px);
-  box-shadow:
-    0 1px 3px rgba(0,0,0,0.08),
-    0 8px 24px rgba(0,0,0,0.10);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.10);
 }
 
 .survey-inner.shake {
@@ -73,23 +140,14 @@ html, body, #root {
   100% { transform: translateX(0); }
 }
 
-/* Header */
-.survey-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.survey-icon {
-  font-size: 2.2rem;
-  margin-bottom: 10px;
-}
+.survey-header { text-align: center; margin-bottom: 20px; }
+.survey-icon { font-size: 2.2rem; margin-bottom: 10px; }
 
 .survey-title {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: clamp(1.4rem, 5vw, 1.75rem);
   font-weight: 700;
   color: var(--sv-text);
-  letter-spacing: -0.3px;
 }
 
 .survey-desc {
@@ -99,17 +157,13 @@ html, body, #root {
   color: var(--sv-muted);
 }
 
-/* Divider */
 .survey-divider {
   height: 1px;
   background: var(--sv-border);
   margin: 20px 0;
 }
 
-/* Field */
-.survey-field {
-  margin-bottom: 20px;
-}
+.survey-field { margin-bottom: 20px; }
 
 .survey-label {
   display: block;
@@ -121,10 +175,7 @@ html, body, #root {
   text-align: left;
 }
 
-.required {
-  color: var(--sv-required);
-  margin-left: 2px;
-}
+.required { color: var(--sv-required); margin-left: 2px; }
 
 .survey-input {
   width: 100%;
@@ -151,7 +202,6 @@ html, body, #root {
   font-size: clamp(0.8rem, 2.5vw, 0.9rem);
 }
 
-/* Error */
 .survey-error {
   display: flex;
   align-items: center;
@@ -170,7 +220,6 @@ html, body, #root {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Button */
 .survey-btn {
   width: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -185,7 +234,6 @@ html, body, #root {
   transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
   box-shadow: 0 2px 8px rgba(99,102,241,0.3);
   -webkit-tap-highlight-color: transparent;
-  letter-spacing: 0.2px;
 }
 
 .survey-btn:hover {
@@ -196,16 +244,6 @@ html, body, #root {
 
 .survey-btn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(99,102,241,0.25);
-}
-
-/* Note */
-.survey-note {
-  margin-top: 14px;
-  text-align: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: clamp(0.72rem, 2.2vw, 0.78rem);
-  color: var(--sv-muted);
 }
 
 /* ════════════════════════════
@@ -234,13 +272,47 @@ html, body, #root {
   inset: 0;
   pointer-events: none;
   background-image: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 30px,
-    rgba(184,134,11,0.03) 30px,
-    rgba(184,134,11,0.03) 31px
+    0deg, transparent, transparent 30px,
+    rgba(184,134,11,0.03) 30px, rgba(184,134,11,0.03) 31px
   );
   z-index: 0;
+}
+
+/* Music button */
+.music-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  background: rgba(44, 26, 14, 0.75);
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  transition: transform 0.2s, background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.music-btn:hover { transform: scale(1.1); background: rgba(44,26,14,0.95); }
+
+/* Typewriter cursor */
+.cursor {
+  display: inline-block;
+  color: var(--rose);
+  font-style: normal;
+  animation: blink 0.75s step-end infinite;
+  margin-left: 1px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 /* Petals */
@@ -252,33 +324,28 @@ html, body, #root {
   overflow: hidden;
 }
 
-.petal {
-  position: absolute;
-  opacity: 0;
-  animation: petalFall linear infinite;
-}
-
-.petal-0  { left: 5%;  animation-duration: 12s; animation-delay: 0s;    font-size: 0.6rem; }
-.petal-1  { left: 15%; animation-duration: 9s;  animation-delay: 1.5s;  font-size: 0.75rem; }
-.petal-2  { left: 25%; animation-duration: 14s; animation-delay: 3s;    font-size: 0.55rem; }
-.petal-3  { left: 35%; animation-duration: 10s; animation-delay: 0.8s;  font-size: 0.8rem; }
-.petal-4  { left: 45%; animation-duration: 11s; animation-delay: 2.2s;  font-size: 0.65rem; }
-.petal-5  { left: 55%; animation-duration: 13s; animation-delay: 4s;    font-size: 0.7rem; }
-.petal-6  { left: 65%; animation-duration: 8.5s; animation-delay: 1s;   font-size: 0.75rem; }
-.petal-7  { left: 75%; animation-duration: 15s; animation-delay: 3.5s;  font-size: 0.6rem; }
-.petal-8  { left: 82%; animation-duration: 10s; animation-delay: 0.3s;  font-size: 0.85rem; }
-.petal-9  { left: 90%; animation-duration: 12s; animation-delay: 2.8s;  font-size: 0.55rem; }
-.petal-10 { left: 10%; animation-duration: 9.5s; animation-delay: 5s;   font-size: 0.7rem; }
-.petal-11 { left: 70%; animation-duration: 11s; animation-delay: 1.8s;  font-size: 0.78rem; }
+.petal { position: absolute; opacity: 0; animation: petalFall linear infinite; }
+.petal-0  { left: 5%;  animation-duration: 12s;  animation-delay: 0s;    font-size: 0.6rem; }
+.petal-1  { left: 15%; animation-duration: 9s;   animation-delay: 1.5s;  font-size: 0.75rem; }
+.petal-2  { left: 25%; animation-duration: 14s;  animation-delay: 3s;    font-size: 0.55rem; }
+.petal-3  { left: 35%; animation-duration: 10s;  animation-delay: 0.8s;  font-size: 0.8rem; }
+.petal-4  { left: 45%; animation-duration: 11s;  animation-delay: 2.2s;  font-size: 0.65rem; }
+.petal-5  { left: 55%; animation-duration: 13s;  animation-delay: 4s;    font-size: 0.7rem; }
+.petal-6  { left: 65%; animation-duration: 8.5s; animation-delay: 1s;    font-size: 0.75rem; }
+.petal-7  { left: 75%; animation-duration: 15s;  animation-delay: 3.5s;  font-size: 0.6rem; }
+.petal-8  { left: 82%; animation-duration: 10s;  animation-delay: 0.3s;  font-size: 0.85rem; }
+.petal-9  { left: 90%; animation-duration: 12s;  animation-delay: 2.8s;  font-size: 0.55rem; }
+.petal-10 { left: 10%; animation-duration: 9.5s; animation-delay: 5s;    font-size: 0.7rem; }
+.petal-11 { left: 70%; animation-duration: 11s;  animation-delay: 1.8s;  font-size: 0.78rem; }
 
 @keyframes petalFall {
-  0%   { opacity: 0;   top: -5%;  transform: rotate(0deg) translateX(0); }
+  0%   { opacity: 0;    top: -5%;  transform: rotate(0deg) translateX(0); }
   10%  { opacity: 0.5; }
   80%  { opacity: 0.35; }
-  100% { opacity: 0;   top: 105%; transform: rotate(360deg) translateX(40px); }
+  100% { opacity: 0;    top: 105%; transform: rotate(360deg) translateX(40px); }
 }
 
-/* Letter Card */
+/* Letter card */
 .letter-container {
   position: relative;
   z-index: 1;
@@ -371,14 +438,9 @@ html, body, #root {
   line-height: 1.1 !important;
 }
 
-.closing {
-  margin-top: clamp(20px, 4vw, 32px);
-  text-align: right;
-}
-.closing p {
-  text-align: right !important;
-  margin-bottom: 4px !important;
-}
+.closing { margin-top: clamp(20px, 4vw, 32px); text-align: right; }
+.closing p { text-align: right !important; margin-bottom: 4px !important; }
+
 .signature {
   font-family: 'Great Vibes', cursive !important;
   font-size: clamp(1.7rem, 5.5vw, 2.3rem) !important;
@@ -397,10 +459,7 @@ html, body, #root {
 }
 
 @media (hover: none) {
-  .survey-btn:active {
-    transform: scale(0.98);
-    background: var(--sv-btn-hover);
-  }
+  .survey-btn:active { transform: scale(0.98); }
 }
 
 ::-webkit-scrollbar { width: 6px; }
