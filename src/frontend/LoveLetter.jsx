@@ -3,15 +3,14 @@ import "./LoveLetter.css";
 
 const CORRECT_NAME = "April Grace Buba";
 
-// SALUTATION speed: ~5 seconds for "Mahal," (6 chars including comma)
-// 5000ms / 6 chars ≈ 833ms per char
-const SALUTATION_SPEED = 833;
+// Typing speeds
+const SALUTATION_SPEED = 120; // ms per char for "Mahal,"
+const PARA_SPEED = 36;        // ms per char for paragraphs (slow & flowing)
 
-// Normal paragraph typing speed (slow, flowing feel)
-const PARA_SPEED = 38; // ms per character
-
-// Pause between blocks (ms) — simulates thinking before next paragraph
-const BLOCK_PAUSE = 3000;
+// Pauses
+const INITIAL_WAIT   = 5000; // wait before typing "Mahal,"
+const AFTER_MAHAL    = 2000; // wait after "Mahal," before first paragraph
+const BETWEEN_BLOCKS = 3000; // wait between every other block
 
 const FULL_TEXT = [
   { type: "salutation", text: "Mahal," },
@@ -22,31 +21,30 @@ const FULL_TEXT = [
   { type: "para", text: "Sana ay huwag mong pagdudahan ang nararamdaman ko sa iyo, sapagkat ito ay hindi bunga ng panandaliang damdamin lamang kundi isang tapat na pinanghahawakan ng aking puso. Hindi ko ito sinimulan na walang katotohanan, at hindi ko rin ito pinapadalos-dalos na walang lalim." },
   { type: "para", text: "Alam kong hindi madali ang maniwala agad, ngunit nais kong iparamdam sa iyo na sa bawat salitang aking binibitawan ay naroon ang aking katapatan. Hinding-hindi ko gagamitin ang damdaming ito upang manakit o maglaro lamang ng emosyon." },
   { type: "para", text: "Nais ko lamang na maramdaman mo ang kapanatagan, na sa kabila ng lahat, ako ay totoo sa iyo. Nawa'y unti-unti mong makita na ang aking hangarin ay hindi lamang basta pagmamahal, kundi pag-aalaga, pag-unawa, at pananatili, kahit sa mga sandaling mahirap intindihin ang lahat." },
-  { type: "closing", text: "Nagmamahal," },
+  { type: "closing",   text: "Nagmamahal," },
   { type: "signature", text: "Jean" },
 ];
 
 export default function LoveLetter() {
-  const [inputName, setInputName] = useState("");
-  const [error, setError] = useState("");
-  const [phase, setPhase] = useState("form"); // form | loading | letter
+  const [inputName, setInputName]       = useState("");
+  const [error, setError]               = useState("");
+  const [phase, setPhase]               = useState("form"); // form | loading | letter
   const [loadProgress, setLoadProgress] = useState(0);
-  const [shake, setShake] = useState(false);
-  const [fadeIn, setFadeIn] = useState(false);
+  const [shake, setShake]               = useState(false);
+  const [fadeIn, setFadeIn]             = useState(false);
   const [letterVisible, setLetterVisible] = useState(false);
 
-  // Typewriter state
+  // Typewriter
   const [visibleBlocks, setVisibleBlocks] = useState([]);
-  const [currentBlock, setCurrentBlock] = useState(0);
-  const [currentChar, setCurrentChar] = useState(0);
-  const [typingDone, setTypingDone] = useState(false);
-  // Track whether we are in the "pause" between blocks
-  const [isPausing, setIsPausing] = useState(false);
+  const [currentBlock, setCurrentBlock]   = useState(-1); // -1 = initial wait
+  const [currentChar, setCurrentChar]     = useState(0);
+  const [typingDone, setTypingDone]       = useState(false);
+  const [isPausing, setIsPausing]         = useState(false);
 
   // Music
   const audioRef = useRef(null);
   const [musicPlaying, setMusicPlaying] = useState(false);
-  const [musicReady, setMusicReady] = useState(false);
+  const [musicReady, setMusicReady]     = useState(false);
 
   useEffect(() => {
     setTimeout(() => setFadeIn(true), 100);
@@ -76,25 +74,30 @@ export default function LoveLetter() {
     return () => clearInterval(timer);
   }, [phase]);
 
+  // ── Kick off typewriter once letter is visible ──
+  // Start with initial 5-second wait, then move to block 0 (salutation)
+  useEffect(() => {
+    if (phase !== "letter" || !letterVisible) return;
+    const t = setTimeout(() => {
+      setCurrentBlock(0);
+    }, INITIAL_WAIT);
+    return () => clearTimeout(t);
+  }, [phase, letterVisible]);
+
   // ── Typewriter effect ──
   useEffect(() => {
     if (phase !== "letter" || !letterVisible) return;
-
-    // All blocks done
+    if (currentBlock < 0) return; // still in initial wait
     if (currentBlock >= FULL_TEXT.length) {
       setTypingDone(true);
       return;
     }
-
-    // Currently pausing between blocks — do nothing, wait for pause timer
     if (isPausing) return;
 
     const block = FULL_TEXT[currentBlock];
 
     if (currentChar < block.text.length) {
-      // Determine typing speed
       const speed = block.type === "salutation" ? SALUTATION_SPEED : PARA_SPEED;
-
       const t = setTimeout(() => {
         setVisibleBlocks((prev) => {
           const updated = [...prev];
@@ -109,16 +112,16 @@ export default function LoveLetter() {
         });
         setCurrentChar((c) => c + 1);
       }, speed);
-
       return () => clearTimeout(t);
     } else {
-      // Block finished — pause before moving to next
+      // Block done — choose the right pause
       setIsPausing(true);
+      const pause = currentBlock === 0 ? AFTER_MAHAL : BETWEEN_BLOCKS;
       const t = setTimeout(() => {
         setIsPausing(false);
         setCurrentBlock((b) => b + 1);
         setCurrentChar(0);
-      }, BLOCK_PAUSE);
+      }, pause);
       return () => clearTimeout(t);
     }
   }, [phase, letterVisible, currentBlock, currentChar, isPausing]);
@@ -128,24 +131,16 @@ export default function LoveLetter() {
     if (phase === "letter" && audioRef.current) {
       audioRef.current.volume = 0.4;
       audioRef.current.loop = true;
-      const tryPlay = () => {
-        audioRef.current.play()
-          .then(() => { setMusicPlaying(true); setMusicReady(true); })
-          .catch(() => { setMusicReady(true); });
-      };
-      tryPlay();
+      audioRef.current.play()
+        .then(() => { setMusicPlaying(true); setMusicReady(true); })
+        .catch(() => { setMusicReady(true); });
     }
   }, [phase]);
 
   const toggleMusic = () => {
     if (!audioRef.current) return;
-    if (musicPlaying) {
-      audioRef.current.pause();
-      setMusicPlaying(false);
-    } else {
-      audioRef.current.play();
-      setMusicPlaying(true);
-    }
+    if (musicPlaying) { audioRef.current.pause(); setMusicPlaying(false); }
+    else              { audioRef.current.play();  setMusicPlaying(true);  }
   };
 
   const handleSubmit = () => {
@@ -160,9 +155,7 @@ export default function LoveLetter() {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") handleSubmit();
-  };
+  const handleKeyDown = (e) => { if (e.key === "Enter") handleSubmit(); };
 
   // ── LOADING SCREEN ──
   if (phase === "loading") {
@@ -188,7 +181,6 @@ export default function LoveLetter() {
   if (phase === "letter") {
     return (
       <div className={`letter-page ${letterVisible ? "letter-visible" : ""}`}>
-        {/* Music */}
         <audio ref={audioRef} src="/music/bgmusic.mp3" preload="auto" />
         {musicReady && (
           <button className="music-btn" onClick={toggleMusic} title="Toggle music">
@@ -196,7 +188,10 @@ export default function LoveLetter() {
           </button>
         )}
 
+        {/* Fixed dark background — never moves */}
+        <div className="page-bg" />
         <div className="paper-texture" />
+
         <div className="letter-container">
           <div className="wax-seal">❦</div>
           <div className="letter-header">
@@ -206,43 +201,32 @@ export default function LoveLetter() {
           <div className="letter-body">
             {visibleBlocks.map((block, i) => {
               if (!block) return null;
-
-              // Is this the block currently being typed?
               const isActive = i === currentBlock && !typingDone && !isPausing;
 
               if (block.type === "salutation") {
-                // Cursor only while salutation is actively typing; removed after
-                const salutationStillTyping = currentBlock === i && !isPausing && !typingDone;
+                // Cursor only while actively typing salutation
+                const stillTypingSalutation = currentBlock === 0 && !isPausing && !typingDone;
                 return (
                   <p key={i} className="salutation">
                     {block.display}
-                    {salutationStillTyping && <span className="cursor">|</span>}
+                    {stillTypingSalutation && <span className="cursor">|</span>}
                   </p>
                 );
               }
-
               if (block.type === "closing") {
                 return (
                   <div key={i} className="closing">
-                    <p>
-                      {block.display}
-                      {isActive && <span className="cursor">|</span>}
-                    </p>
+                    <p>{block.display}{isActive && <span className="cursor">|</span>}</p>
                   </div>
                 );
               }
-
               if (block.type === "signature") {
                 return (
                   <div key={i} className="closing">
-                    <p className="signature">
-                      {block.display}
-                      {isActive && <span className="cursor">|</span>}
-                    </p>
+                    <p className="signature">{block.display}{isActive && <span className="cursor">|</span>}</p>
                   </div>
                 );
               }
-
               return (
                 <p key={i}>
                   {block.display}
