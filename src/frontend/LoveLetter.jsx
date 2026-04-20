@@ -71,7 +71,7 @@ export default function LoveLetter() {
               ng isang sumpang hindi ko matakasan. At sa bawat mensaheng iyong
               ipinapadala, kahit ito'y may halong pagbibiro at panunukso, hindi
               ko mapigilang mapangiti. Sapagkat sa likod nito, naroon ang saya
-              na ikaw ay akin nakakausap.
+              na ikaw ay aking nakakausap.
             </p>
             <p>
               Kahit tayo ay magkalayo at hindi pa nagkikita, nananatiling buo at
